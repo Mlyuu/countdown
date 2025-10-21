@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="th">
+<head> <!-- Favicon: นาฬิกา (SVG data URI) -->
+<link rel="icon" type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%231e2147'/%3E%3Ccircle cx='32' cy='32' r='26' fill='%23ffffff'/%3E%3Cg stroke='%231e2147' stroke-width='4' stroke-linecap='round'%3E%3Cline x1='32' y1='32' x2='32' y2='18'/%3E%3Cline x1='32' y1='32' x2='44' y2='32'/%3E%3C/g%3E%3C/svg%3E">
+<!-- สีธีมของแถบเบราว์เซอร์ (อุปกรณ์มือถือบางรุ่น) -->
+<meta name="theme-color" content="#1e2147">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>countdown to something</title>
+  <style>
+    :root{
+      --card-bg: rgba(255,255,255,.12);
+      --glass: rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100svh;
+      display:grid;
+      place-items:center;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", "Noto Sans", sans-serif;
+      color:#0f172a;
+      background: radial-gradient(1200px 800px at 10% 10%, #fce7f3 0, transparent 60%),
+                  radial-gradient(1000px 700px at 90% 20%, #e0f2fe 0, transparent 55%),
+                  linear-gradient(135deg,#f8fafc 0,#e2e8f0 100%);
+    }
+    .wrap{
+      width:min(920px, 92vw);
+      padding: clamp(16px, 3vw, 28px);
+    }
+    .title{
+      text-align:center;
+      font-weight:800;
+      line-height:1.1;
+      font-size: clamp(22px, 4vw, 40px);
+      letter-spacing:.3px;
+      margin:0 0 .6rem;
+    }
+    .subtitle{
+      text-align:center;
+      margin:0 0 1.2rem;
+      color:#334155;
+      font-size: clamp(14px, 2.2vw, 18px);
+    }
+    .card{
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(2,6,23,.08);
+      border-radius: 20px;
+      padding: clamp(16px, 3.5vw, 28px);
+      box-shadow: 0 10px 30px rgba(2,6,23,.06);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: clamp(10px, 2.5vw, 18px);
+    }
+    .box{
+      background: var(--glass);
+      border: 1px solid rgba(2,6,23,.06);
+      border-radius: 18px;
+      padding: clamp(14px, 2.5vw, 20px);
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .num{
+      font-weight:900;
+      font-variant-numeric: tabular-nums;
+      font-size: clamp(34px, 8vw, 64px);
+      line-height:1;
+    }
+    .label{
+      margin-top:.35rem;
+      font-size: clamp(12px, 2vw, 14px);
+      color:#475569;
+      letter-spacing:.4px;
+    }
+    .footer{
+      margin-top: clamp(14px, 2.5vw, 18px);
+      text-align:center;
+      color:#334155;
+      font-size: clamp(13px, 2vw, 15px);
+    }
+    .chip{
+      display:inline-block;
+      padding:.4rem .7rem;
+      border-radius:999px;
+      border:1px solid rgba(2,6,23,.08);
+      background:rgba(255,255,255,.6);
+      margin-top:.4rem;
+    }
+    .hit{
+      display:none;
+      margin-top:12px;
+      text-align:center;
+      font-weight:800;
+      font-size: clamp(18px, 3vw, 26px);
+      color:#065f46;
+    }
+    @media (max-width:540px){
+      .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    #target-date, .footer {
+  display: none;
+}
+
+/* ปุ่ม รอก่อนยังไม่ถึงเวลา */
+.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 24px;
+  background: #920606;              
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  transition: transform 0.1s ease, background 0.2s ease, box-shadow 0.2s ease;
+
+
+
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1 class="title">นับถอยหลังวันที่ <span id="target-label">24</span></h1>
+    <p class="subtitle"> 24 จะเป็นวันเกิดใครซักคน(ไออ้วม)</p>
+
+    
+
+
+    <section class="card">
+      <div class="grid" role="timer" aria-live="polite">
+        <div class="box"><div id="days" class="num">0</div><div class="label">วัน</div></div>
+        <div class="box"><div id="hours" class="num">0</div><div class="label">ชั่วโมง</div></div>
+        <div class="box"><div id="minutes" class="num">0</div><div class="label">นาที</div></div>
+        <div class="box"><div id="seconds" class="num">0</div><div class="label">วินาที</div></div>
+      </div>
+      <div id="hit" class="hit"></div>
+      <div class="footer">
+        เป้าหมาย: <span id="target-date" class="chip">—</span>
+      </div>
+    </section>
+  </main>
+  <button id="toggle-target" class="toggle-btn" type="button">
+  รอก่อนยังไม่ถึงเวลา
+</button>
+
+
+
+  <script>
+    // ชื่อเดือนภาษาไทยแบบย่อ
+    const TH_MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+
+    function getNext24th() {
+      const now = new Date();
+      let y = now.getFullYear();
+      let m = now.getMonth(); // 0-11
+      let target = new Date(y, m, 24, 0, 0, 0, 0); // 00:00 ของวันที่ 24 เดือนนี้
+      // ถ้าปัจจุบันเลยเป้าหมายแล้ว ให้เลื่อนไปวันที่ 24 ของเดือนถัดไป
+      if (now >= target) {
+        if (m === 11) { y += 1; m = 0; }
+        else { m += 1; }
+        target = new Date(y, m, 24, 0, 0, 0, 0);
+      }
+      return target;
+    }
+
+    // อนุญาตให้ปรับเป้าหมายผ่าน query string เช่น ?hour=9 ให้เป็น 09:00 ของวันที่ 24
+    function applyQueryOverrides(date) {
+      const params = new URLSearchParams(location.search);
+      const h = params.get("hour");
+      const min = params.get("min");
+      const sec = params.get("sec");
+      if (h !== null) date.setHours(Number(h) || 0);
+      if (min !== null) date.setMinutes(Number(min) || 0);
+      if (sec !== null) date.setSeconds(Number(sec) || 0);
+      date.setMilliseconds(0);
+      return date;
+    }
+
+    const target = applyQueryOverrides(getNext24th());
+    const daysEl = document.getElementById("days");
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+    const targetDateEl = document.getElementById("target-date");
+    const hitEl = document.getElementById("hit");
+
+    // แสดงวันที่เป้าหมายสวยๆ
+    (function showTarget(){
+      const d = target.getDate();
+      const m = TH_MONTHS[target.getMonth()];
+      const y = target.getFullYear() + 543; // พ.ศ.
+      const hh = target.getHours().toString().padStart(2,"0");
+      const mm = target.getMinutes().toString().padStart(2,"0");
+      targetDateEl.textContent = `${d} ${m} ${y} เวลา ${hh}:${mm} น.`;
+    })();
+
+    function update() {
+      const now = new Date();
+      let diff = target - now; // ms
+      if (diff <= 0) {
+        daysEl.textContent = "0";
+        hoursEl.textContent = "0";
+        minutesEl.textContent = "0";
+        secondsEl.textContent = "0";
+        hitEl.style.display = "block";
+        clearInterval(timer);
+        return;
+      }
+      const sec = Math.floor(diff / 1000);
+      const d = Math.floor(sec / 86400);
+      const h = Math.floor((sec % 86400) / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = Math.floor(sec % 60);
+
+      daysEl.textContent = d.toString();
+      hoursEl.textContent = h.toString().padStart(2, "0");
+      minutesEl.textContent = m.toString().padStart(2, "0");
+      secondsEl.textContent = s.toString().padStart(2, "0");
+    }
+
+    update();
+    const timer = setInterval(update, 1000);
+  </script>
+</body>
+</html>
