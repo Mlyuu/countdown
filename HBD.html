@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Happy Birthday 🎂</title>
+  <meta name="description" content="A cute, single-file Happy Birthday webpage with countdown, confetti, gallery, and guestbook." />
+  <meta name="theme-color" content="#ff70a6" />
+  <style>
+    :root{
+      --bg: #0f1223;
+      --card:#141935;
+      --text:#e9ecff;
+      --muted:#a9b0ff;
+      --accent:#ff70a6;
+      --accent-2:#70d6ff;
+      --accent-3:#ffd670;
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;padding:0;
+      background:radial-gradient(1200px 600px at 70% -10%, #1b2050, transparent) var(--bg);
+      color:var(--text);
+      font:400 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    a{color:var(--accent)}
+    .wrap{max-width:1024px;margin:0 auto;padding:28px}
+
+
+    header.hero{
+      display:grid;gap:18px;align-items:center;grid-template-columns:1fr;
+      text-align:center; padding:26px; border-radius:var(--radius);
+      background:linear-gradient(135deg, #141935 0%, #1a2046 100%); box-shadow:var(--shadow);
+      position:relative; overflow:hidden
+    }
+    .title{
+      font-weight:800; font-size:clamp(28px, 4.5vw, 56px); letter-spacing:.5px; line-height:1.1; margin:0;
+      background:linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+      background-size:200% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; animation:shine 8s linear infinite
+    }
+    @keyframes shine{0%{background-position:0 0}100%{background-position:200% 0}}
+    .subtitle{margin:0;color:var(--muted);font-size:clamp(14px, 2vw, 18px)}
+    .hero .cta{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px}
+    button{
+      appearance:none;border:0;border-radius:14px;padding:12px 16px;font-weight:700; cursor:pointer;
+      box-shadow:var(--shadow); background:var(--accent); color:#131324; transition:transform .06s ease, filter .2s ease;
+    }
+    button:hover{transform:translateY(-1px)}
+    .secondary{background:#232a5d;color:var(--text)}
+
+
+    section{margin:26px 0}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow)
+    }
+    h2{margin:0 0 8px 0; font-size:clamp(18px,2.8vw,26px)}
+    p.lead{color:var(--muted); margin-top:0}
+
+
+    .countdown{display:grid; grid-template-columns:repeat(4, minmax(70px,1fr)); gap:10px}
+    .timebox{background:#0f1536; border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:14px; text-align:center}
+    .timebox .num{font-size:clamp(22px,4.5vw,36px); font-weight:800}
+    .timebox .lbl{font-size:12px; color:var(--muted)}
+
+
+    #confetti{position:fixed; inset:0; pointer-events:none}
+
+    footer{opacity:.8; text-align:center; margin:24px 0; font-size:13px}
+
+    .message-box{
+      border:3px solid rgb(255,255,255,rgba(255,255,255,.08));
+      border-radius:16px;
+      padding:25px;
+      margin:30px auto;
+      width:100%;
+      max-width:none;
+      background:transparent;
+      box-shadow:0 0 20px rgb(0, 0, 0);
+    }
+
+    @keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,0,0,0.6); }
+  50%      { box-shadow: 0 0 25px rgba(255,0,0,1); }
+}
+.message-box.glow {
+  animation: glowPulse 1.6s ease-in-out infinite;
+}
+
+
+
+  </style>
+</head>
+<body>
+
+  
+
+  <canvas id="confetti"></canvas>
+  <div class="wrap">
+    <header class="hero card">
+      <h1 class="title" id="heroTitle">Happy Birthday <span id="name">นกยูง</span></h1>
+<p class="subtitle" id="subtitle">
+  อายุ <b id="age">—</b> ปี
+  <span id="ageDetail" style="color: var(--muted)"></span>
+   วันเกิดไออ้วม <b id="partyDateText">—</b>
+</p>
+      <div class="cta">
+        <button id="btnConfetti">เผื่่อไม่มีอะไรทำ</button>
+
+
+        <button id="popupBtn" style="
+          padding:12px 20px;border:none;border-radius:12px;background:#ff70a6;color:#fff;font-weight:bold;cursor:pointer;
+          box-shadow:0 0 15px rgba(5, 4, 66, 0.6);
+        ">HBD auam</button>
+
+
+<button id="videoBtn" style="
+  padding:12px 20px;
+  border:none;
+  border-radius:12px;
+  background:#70d6ff;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 0 15px rgba(112,214,255,0.6);
+">
+  videos
+</button>
+
+<div id="videoPopup" style="
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.8);
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+">
+  <div style="
+    position:relative;
+    background:#000;
+    border:2px solid #70d6ff;
+    box-shadow:0 0 20px rgba(112,214,255,0.8);
+    border-radius:16px;
+    padding:10px;
+    max-width:90%;
+  ">
+    <video id="localVideo" width="560" height="315" controls style="border-radius:12px;">
+      <source src="videos/HBD1.mp4" type="video/mp4">
+    </video>
+
+    <button onclick="closeVideo()" style="
+      position:absolute; top:-12px; right:-12px;
+      background:#ff70a6; border:none; border-radius:50%;
+      color:#fff; width:32px; height:32px; font-size:18px; cursor:pointer;
+      box-shadow:0 0 10px rgba(255,112,166,0.7);
+    ">×</button>
+    
+  </div>
+</div>
+
+
+
+<script>
+
+
+
+  const videoBtn = document.getElementById('videoBtn');
+  const videoPopup = document.getElementById('videoPopup');
+  const localVideo = document.getElementById('localVideo');
+
+  videoBtn.addEventListener('click', () => {
+    videoPopup.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    localVideo.play();
+  });
+
+  function closeVideo(){
+    videoPopup.style.display = 'none';
+    document.body.style.overflow = '';
+    localVideo.pause();
+    localVideo.currentTime = 0;
+  }
+
+  videoPopup.addEventListener('click', (e)=>{
+    if(e.target === videoPopup){ closeVideo(); }
+  });
+</script>
+
+
+        <button class="secondary" id="btnMusic">▶︎ เพลง</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>นับถอยหลังสู่วันเกิด</h2>
+      <p class="lead">เหลืออีกเท่าไรจนถึงเวลาเฉลิมฉลอง</p>
+      <div class="countdown" id="countdown">
+        <div class="timebox"><div class="num" id="dd">0</div><div class="lbl">วัน</div></div>
+        <div class="timebox"><div class="num" id="hh">0</div><div class="lbl">ชั่วโมง</div></div>
+        <div class="timebox"><div class="num" id="mm">0</div><div class="lbl">นาที</div></div>
+        <div class="timebox"><div class="num" id="ss">0</div><div class="lbl">วินาที</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>เพลงที่อ้วมชอบ</h2>
+      <div style="position:relative; overflow:hidden; border-radius:12px; border:1px solid rgba(255,255,255,.08); box-shadow:var(--shadow);">
+        <iframe id="spotify" style="width:100%; height:152px; border:0;"
+          src="https://open.spotify.com/embed/track/2SifZIrXCniYtvhoPCf8sz?utm_source=generator"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </div>
+    </section>
+
+    <div class="message-box">
+      <p>ความในใจ เย้ไออ้วมอายุ19ละ วันนี้มีคนอดล้อแก่แล้วแบร่ๆๆๆ (เว็บนี้เป็นของยูคนเดียวห้ามเอาไปให้ใครอ่านหรือดูเด็ดขาดเลย ไม่งั้นเราคงเอาหน้ามุดดินหนี) 
+        นี่เป็นเว็บแรกเลยที่นั่งทำคนเดียวหลายวันมากหวังว่าจะชอบนะแต่ถ้าไม่ชอบก็บอกนะ ปกติเราจะเป็นผู้รับมาตลอดเลยนี่เลยน่าจะเป็นครั้งแรกที่เป็นผู้ให้
+         ไม่รู้ว่ายูจะตอบคำถามเราครบมั้ยมีคำถามที่เรายังไม่ได้ยินจากยูเลย แล้วไม่ถามซ้ำด้วยงอม เว็บนี้จัดทำขึ้นเพื่อบอกแฮปยูคนเดียวและจะไม่ทำแล้ว
+        เหนื่อยมาก5555 ทำครั้งแรกแล้วครั้งเดียวพอ เราทำเว็บขนาดนี้ได้แต้มมั้ยน้า เรื่องของที่ให้นี่คิดว่าไม่ได้ให้ของที่แพงมากแต่เป็นของที่สามารถอยู่ได้นานๆ
+        ละกันไม่ก็เว็บนี้ยูจะเข้ามาดูเมื่อไหร่ก็ได้ นกยูงจะเป็นคนชอบดูหนังมากยิ่งแนวรอมคอมนะแบบรอมคอมเลิฟเวอร์เลย 
+        เค้กที่ชอบก็คงเป็นเค้กสตอเบอรี่ ก็อยากบอกว่าชอบอาหารแบบไหนแต่ยูกินทุกอย่างเลยก็เลยไม่รู้ว่าชอบกินอะไร สถานที่เที่ยวที่ยูอยากไปคงจะเป็นทะเล
+        ถ้าไม่อยากไปคงเป็นภูเขา เพราะว่ามันชื้นมันเหนื่อยยูน่าจะไม่อยากไป เราอยากเป็นตากล้องอยากถ่ายรูปคน (ที่เคยบอกว่ายูไม่ขึ้นกล้องอ่ะอยากแกล้งเฉยๆยูถ่ายรูปขึ้นกล้องจะตาย)
+        ข้อความมันอาจจะเยอะไปนะ ไม่รู้ยูจะอ่านหมดรึป่าว(ซอรี่ที่ฟรอนต์มันอ่านแล้วลายตาแต่ถ้าอ่านจบก็ขอบคุณนะ)
+
+      </p>
+    </div>
+
+    <footer>เรานั่งทำเที่ยงคืนตอนเราโทรกับยูเราทำสุดความสามารถเลยะนกยูง byภู</footer>
+  </div>
+
+  <script>
+    const CONFIG = {
+      birthdayPerson: "นกยูง",
+      birthDate: "2006-10-24",
+      partyDateTime: "2025-10-24T00:00:00",
+  
+      musicSrc: "",
+      pageTitle: "Happy Birthday "
+    };
+  </script>
+
+
+  <script>
+
+    const $  = (s) => document.querySelector(s);
+    const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+
+    document.title = CONFIG.pageTitle;
+    $('#name').textContent = CONFIG.birthdayPerson;
+
+
+    const today = new Date();
+    const birth = new Date(CONFIG.birthDate + 'T00:00:00');
+    const age = today.getFullYear() - birth.getFullYear() - ((today.getMonth()<birth.getMonth() || (today.getMonth()==birth.getMonth() && today.getDate()<birth.getDate()))?1:0);
+    $('#age').textContent = age;
+
+    function diffYMD(a,b){
+      let y = b.getFullYear() - a.getFullYear();
+      let m = b.getMonth() - a.getMonth();
+      let d = b.getDate() - a.getDate();
+      if(d < 0){
+        const prev = new Date(b.getFullYear(), b.getMonth(), 0);
+        d += prev.getDate();
+        m -= 1;
+      }
+      if(m < 0){ m += 12; y -= 1; }
+      return {y,m,d};
+    }
+    const {y:yy, m:mm, d:dd} = diffYMD(birth, today);
+    const detail = `(${yy} ปี ${mm} เดือน ${dd} วัน ณ วันนี้)`;
+    const detEl = document.getElementById('ageDetail'); if(detEl) detEl.textContent = detail;
+
+    const partyDate = new Date(CONFIG.partyDateTime);
+   $('#partyDateText').textContent = partyDate.toLocaleDateString(undefined, { dateStyle:'long' });
+
+
+   
+    function tick(){
+      const now = new Date();
+      let diff = Math.max(0, partyDate - now);
+      const s = Math.floor(diff/1000);
+      const d = Math.floor(s/86400);
+      const h = Math.floor((s%86400)/3600);
+      const m = Math.floor((s%3600)/60);
+      const ss = s%60;
+      $('#dd').textContent = d; $('#hh').textContent = h; $('#mm').textContent = m; $('#ss').textContent = ss;
+    }
+    tick(); setInterval(tick, 1000);
+
+ 
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    let W, H; function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; } resize(); addEventListener('resize', resize);
+    const colors = ['#ff70a6','#70d6ff','#ffd670','#e9ff70','#7bffb7','#c6a0ff'];
+    let confetti = [];
+    function makeConfetti(n=140){
+      for(let i=0;i<n;i++){
+        confetti.push({ x: Math.random()*W, y: -20 - Math.random()*H*0.5, s: 6+Math.random()*10, r: Math.random()*Math.PI, v: 1+Math.random()*3.5, w: (Math.random()*0.1)+0.02, c: colors[Math.floor(Math.random()*colors.length)] });
+      }
+    }
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      confetti.forEach(p=>{ p.y += p.v; p.r += p.w; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6); ctx.restore(); });
+      confetti = confetti.filter(p=> p.y < H+40);
+      requestAnimationFrame(draw);
+    }
+    draw();
+    function burst(){ makeConfetti(180); }
+
+   
+    $('#btnConfetti').addEventListener('click', burst);
+
+   
+    document.getElementById('btnMusic').addEventListener('click', ()=>{
+      const sp = document.getElementById('spotify');
+      if(sp){ sp.scrollIntoView({ behavior:'smooth', block:'center' }); burst(); }
+    });
+
+    
+    const popupBtn = document.getElementById('popupBtn');
+   
+    const popupOverlay = document.createElement('div');
+    popupOverlay.id = 'popupBox';
+    Object.assign(popupOverlay.style, {
+      display:'none', position:'fixed', inset:'0', background:'rgba(0,0,0,0.7)',
+      justifyContent:'center', alignItems:'center', zIndex:'999'
+    });
+    const popupInner = document.createElement('div');
+    Object.assign(popupInner.style, {
+      background:'#111', border:'2px solid #ff0000', boxShadow:'0 0 20px rgba(255,0,0,0.8)',
+      borderRadius:'16px', padding:'30px', maxWidth:'500px', color:'#fff', textAlign:'center', lineHeight:'1.8', margin:'16px'
+    });
+    popupInner.innerHTML = `
+      <p>อยากบอกยูว่า<br><br>
+      HBDนะไออ้วม ของขวัญของเราอาจจะไม่ได้ดีที่สุดอาจจะไม่ค่อยมีค่า ยูอาจจะไม่ค่อยชอบเท่าไหร่
+      แต่เราตั้งใจทำให้มากๆเลยนะ มาอวยพรดีกว่า เราขอให้ยูมีความสุขในทุกวัน ทำอะไรก็สำเร็จ ไม่ว่าใครจะมาว่าร้ายอะไรยูอย่าให่เขามาว่าอะไรเราได้นะเว้ย 
+      ยูจะเก่งกว่านี้ในหลายๆเรื่องอีกเยอะเลย ขอให้ได้เข้ามหาลัยที่อยากเข้า
+      เราขอให้ยูเยอะไปรึป่าวนะ แต่ก็นั่นแหละมีความสุขนะไออ้วม</p>
+      <button id="closePopup" style="
+        margin-top:20px; padding:10px 16px; border:none; border-radius:12px;
+        background:#ff70a6; color:#fff; font-weight:bold; cursor:pointer;">ปิดข้อความ</button>`;
+    popupOverlay.appendChild(popupInner);
+    document.body.appendChild(popupOverlay);
+
+    popupBtn.addEventListener('click', ()=>{
+      popupOverlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    });
+    popupOverlay.addEventListener('click', (e)=>{
+      if(e.target === popupOverlay){ closePopup(); }
+    });
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && popupOverlay.style.display === 'flex'){ closePopup(); }
+    });
+    function closePopup(){
+      popupOverlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    $('#closePopup')?.addEventListener('click', closePopup);
+
+  
+    setTimeout(burst, 700);
+
+const msgBox = document.querySelector('.message-box');
+let glowing = false;
+
+document.getElementById('btnMusic').addEventListener('click', () => {
+  glowing = !glowing;
+  if(glowing){
+    msgBox.classList.add('glow');
+  } else {
+    msgBox.classList.remove('glow');
+  }
+});
+
+
+  </script>
+  
+  
+</body>
+</html>
